@@ -25,7 +25,7 @@ def write_confs(mol, confs, outname, format: str = "sdf"):
 
 
 def optimize(mol, confid, ff: str = "uff"):
-    if ff == "MMFF":
+    if ff == "mmff":
         _converged = Chem.MMFFOptimizeMolecule(mol, confId=confid)
         return Chem.MMFFGetMoleculeForceField(
             mol, Chem.MMFFGetMoleculeProperties(mol), confId=confid
@@ -39,9 +39,9 @@ def create_conformer(
     smiles: str,
     use_etkdg: bool = False,
     max_conformers: int = 1,
-    num_samples: int = 50,
+    num_samples: int = 1000,
     seed: int = 42,
-    ff: str = "uff",
+    ff: str = "mmff",
     rms_threshold: float = 0.7,
     energy_window: float = 10,
     outname: Union[str, Path] = "conformers.sdf",
