@@ -26,7 +26,7 @@ def write_confs(mol, confs, outname, format: str = "sdf"):
 
 def optimize(mol, confid, ff: str = "uff"):
     if ff == "mmff":
-        _converged = Chem.MMFFOptimizeMolecule(mol, confId=confid)
+        _converged = Chem.MMFFOptimizeMolecule(mol, confId=confid, maxIters=1000)
         return Chem.MMFFGetMoleculeForceField(
             mol, Chem.MMFFGetMoleculeProperties(mol), confId=confid
         ).CalcEnergy()
