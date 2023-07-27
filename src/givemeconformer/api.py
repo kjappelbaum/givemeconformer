@@ -35,7 +35,7 @@ def optimize(mol, confid, ff: str = "uff"):
         return Chem.UFFGetMoleculeForceField(mol, confId=confid).CalcEnergy()
 
 
-def create_conformer(
+def _get_conformer(
     smiles: str,
     use_etkdg: bool = False,
     max_conformers: int = 1,
@@ -44,9 +44,7 @@ def create_conformer(
     ff: str = "mmff",
     rms_threshold: float = 0.7,
     energy_window: float = 10,
-    outname: Union[str, Path] = "conformers.sdf",
-    outformat: str = "sdf",
-) -> str:
+):
     mol = Chem.MolFromSmiles(smiles)
 
     Chem.SanitizeMol(mol)
@@ -78,7 +76,56 @@ def create_conformer(
                 break
         if passed:
             write[conf] = True
+    return mol, write
 
+
+def get_conformer(
+    smiles: str,
+    use_etkdg: bool = False,
+    max_conformers: int = 1,
+    num_samples: int = 1000,
+    seed: int = 42,
+    ff: str = "mmff",
+    rms_threshold: float = 0.7,
+    energy_window: float = 10,
+):
+    mol, write = _get_conformer(
+        smiles=smiles,
+        use_etkdg=use_etkdg,
+        max_conformers=max_conformers,
+        num_samples=num_samples,
+        seed=seed,
+        ff=ff,
+        rms_threshold=rms_threshold,
+        energy_window=energy_window,
+    )
+
+    conformers = [mol.GetConformer(confid) for confid in write.keys()]
+    return conformers
+
+
+def create_conformer(
+    smiles: str,
+    use_etkdg: bool = False,
+    max_conformers: int = 1,
+    num_samples: int = 1000,
+    seed: int = 42,
+    ff: str = "mmff",
+    rms_threshold: float = 0.7,
+    energy_window: float = 10,
+    outname: Union[str, Path] = "conformers.sdf",
+    outformat: str = "sdf",
+) -> str:
+    mol, write = _get_conformer(
+        smiles=smiles,
+        use_etkdg=use_etkdg,
+        max_conformers=max_conformers,
+        num_samples=num_samples,
+        seed=seed,
+        ff=ff,
+        rms_threshold=rms_threshold,
+        energy_window=energy_window,
+    )
     write_confs(mol, write, outname, outformat)
 
     print(f"Created {len(write)} conformers")
