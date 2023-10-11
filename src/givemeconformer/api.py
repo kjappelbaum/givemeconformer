@@ -14,14 +14,21 @@ def getRMS(mol, c1, c2):
 
 
 def write_confs(mol, confs, outname, format: str = "sdf"):
-    with open(outname, "w") as f:
-        if format == "sdf":
+    # add the format extension if not present
+    if not outname.endswith(format):
+        outname += "." + format
+    if format == "sdf":
+        with open(outname, "w") as f:
             w = Chem.SDWriter(f)
             for conf in confs.values():
                 w.write(mol, conf)
             w.close()
-        else:
-            raise Exception("Format not recognized")
+    elif format == "mol":
+        w = Chem.MolToMolFile(mol, outname)
+    elif format == "xyz":
+        w = Chem.MolToXYZFile(mol, outname)
+    else:
+        raise Exception("Format not recognized")
 
 
 def optimize(mol, confid, ff: str = "uff"):
@@ -113,7 +120,7 @@ def create_conformer(
     ff: str = "mmff",
     rms_threshold: float = 0.7,
     energy_window: float = 10,
-    outname: Union[str, Path] = "conformers.sdf",
+    outname: Union[str, Path] = "conformers",
     outformat: str = "sdf",
 ) -> str:
     mol, write = _get_conformer(
